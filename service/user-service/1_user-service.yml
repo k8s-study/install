@@ -4,6 +4,7 @@ metadata:
   name: user-service
   annotations:
     key-auth.plugin.konghq.com: "key-auth-plugin"
+    cors.plugin.konghq.com: "cors-plugin"
 spec:
   rules:
   - host: api.pongpong.io
