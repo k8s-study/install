@@ -100,6 +100,17 @@ curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-con
 curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-controller:8001/proxy/key-auths
 ```
 
+### Frontend
+
+```
+istioctl kube-inject -f service/frontend/frontend.yml | kubectl apply -f -
+# check
+kubectl get svc
+kubectl get po
+# test
+open http://www.pongpong.io
+```
+
 ### User Service
 
 ```
@@ -113,11 +124,4 @@ kubectl proxy
 curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-controller:8001/proxy/services
 curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-controller:8001/proxy/routes
 curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-controller:8001/proxy/plugins
-```
-
-user 만들기 ([httpie](https://httpie.org/))
-
-```
-http POST http://api.pongpong.io/user-service/v1/signup email=subicura@subicura.com password=1234 apiKey:anonymous
-http POST http://api.pongpong.io/user-service/v1/login email=subicura@subicura.com password=1234 apiKey:anonymous
 ```

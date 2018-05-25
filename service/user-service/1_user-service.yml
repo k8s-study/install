@@ -52,6 +52,7 @@ spec:
     matchLabels:
       type: api
       app: user-service
+      version: v1
   minReadySeconds: 1
   strategy:
     type: RollingUpdate
