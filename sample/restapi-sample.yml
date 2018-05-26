@@ -18,7 +18,7 @@ kind: KongIngress
 metadata:
   name: rest-api-sample
 proxy:
-  path: /external
+  path: /public
 route:
   strip_path: true  
 upstream:
@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
       - name: rest-api-sample
-        image: subicura/rest-api-sample:1
+        image: subicura/rest-api-sample:2
 
 ---
 

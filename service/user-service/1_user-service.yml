@@ -21,7 +21,7 @@ kind: KongIngress
 metadata:
   name: user-service
 proxy:
-  path: /external
+  path: /public
 route:
   strip_path: true
 upstream:
@@ -68,7 +68,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: subicura/k8s-study-user-service:0.3
+          image: subicura/k8s-study-user-service:0.4
           env:
           - name: PORT
             value: "8080"

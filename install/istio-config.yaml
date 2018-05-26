@@ -1,0 +1,17 @@
+# for istio-0.8
+apiVersion: networking.istio.io/v1alpha3
+kind: ExternalService
+metadata:
+  name: external-svc-dns
+spec:
+  hosts:
+  - api.pongpong.io
+  ports:
+  - number: 80
+    name: http
+    protocol: http
+  discovery: DNS
+  endpoints:
+  - address: kong-proxy.kong.svc.cluster.local
+    ports:
+      http: 80
