@@ -69,6 +69,19 @@ open http://localhost:3000
 open http://localhost:8088/dotviz
 ```
 
+- jaeger
+
+zipkin 대신 사용
+
+```
+kubectl apply -n istio-system -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
+# port forwarding
+kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686 &
+# test
+open http://localhost:16686
+```
+
+
 - prometheus test
 
 expression sample
