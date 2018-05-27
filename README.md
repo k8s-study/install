@@ -62,6 +62,11 @@ kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=zi
 kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=prometheus -o jsonpath='{.items[0].metadata.name}') 9090:9090 & # prometheus
 kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000:3000 & # grafana
 kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8088:8088 & # service graph
+# test
+open http://localhost:9411
+open http://localhost:9090
+open http://localhost:3000
+open http://localhost:8088/dotviz
 ```
 
 - prometheus test
