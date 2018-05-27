@@ -1,12 +1,22 @@
 # k8s-study install
 
-kubernetes x microservices sample project 설치 및 테스트 가이드
+kubernetes x microservices sample project 설치 / 테스트 가이드
+
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+  - [Istio (Service Mesh)](#istio)
+  - [Istio addons (zipkin or jaeger, prometheus, grafana, service graph)](#istio-addons)
+  - [Kong (API Gateway)](#kong)
+  - [Kong Plugin](#kong-plugin)
+  - [Frontend (react/next.js)](#frontend)
+  - [User Service (golang/gin)](#user-service)
+- [Screenshot](#screenshot)
+- [Known Issue](#known-issue)
 
 ## Prerequisites
 
 - Kubernetes 1.9 이상
-- Docker for mac(18.05.0-ce edge)과 AWS(kops 1.9)에서 테스트하였음
-- MacOS에서 테스트하였음
+- Docker for mac(18.05.0-ce edge)에서 테스트하였음
 
 ### /etc/hosts
 
@@ -143,3 +153,30 @@ curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-con
 curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-controller:8001/proxy/routes
 curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-controller:8001/proxy/plugins
 ```
+
+## Screenshot
+
+- frontend
+
+![](screenshot/frontend.png)
+
+- dotviz
+
+![](screenshot/dotviz.png)
+
+- jaeger
+
+![](screenshot/jaeger.png)
+
+- grafana
+
+![](screenshot/grafana.png)
+
+## Known Issue
+
+### Kong Ingress
+
+kong ingress가 아직 초창기 버전이라 기능이 부족하고 버그가 있음.
+
+- 공식 이미지 대신 subicura/kong-ingress-controller-amd64 사용
+- plugin을 사용하는 서비스를 삭제(delete)하면 plugin도 삭제됨. 다시 만들어야함
