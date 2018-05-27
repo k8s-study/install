@@ -28,6 +28,22 @@ upstream:
   service_upstream: true
 ---
 
+apiVersion: config.istio.io/v1alpha1
+kind: RouteRule
+metadata:
+ name: user-service-rewrite-rule
+spec:
+  destination:
+    service: kong-proxy.kong.svc.cluster.local
+  match:
+    request:
+      headers:
+        uri:
+          prefix: /user-service
+  rewrite:
+    authority: api.pongpong.io
+---
+
 apiVersion: v1
 kind: Service
 metadata:
