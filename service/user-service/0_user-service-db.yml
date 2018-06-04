@@ -22,6 +22,8 @@ spec:
       app: user
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         type: db
         app: user

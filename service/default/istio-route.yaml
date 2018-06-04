@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: internal-kong-proxy
+spec:
+  hosts:
+    - kong-proxy.kong.svc.cluster.local
+  http:
+  - match:
+    - uri:
+        prefix: /
+    rewrite:
+      authority: api.pongpong.io
+    route:
+      - destination:
+          host: kong-proxy.kong.svc.cluster.local

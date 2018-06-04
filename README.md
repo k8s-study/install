@@ -28,13 +28,13 @@ kubernetes x microservices sample project 설치 / 테스트 가이드
 
 ### Istio
 
-- Istio client를 설치함 (0.7.1 이상)
+- Istio client를 설치함 (0.8.0 이상)
 
 ```
 # move to temp directory
 cd ~/Downloads
 curl -L https://git.io/getLatestIstio | sh -
-export ISTIO_VESRION=0.7.1
+export ISTIO_VESRION=0.8.0
 mv istio-${ISTIO_VESRION}/bin/istioctl /usr/local/bin
 # test
 istioctl version
@@ -42,9 +42,9 @@ istioctl version
 rm -rf istio-${ISTIO_VESRION}
 ```
 
-- Istio를 설치함 (pilot, mixer, istio-auth, ...)
+- Istio를 설치함 (mixer, pilot, citadel, ...)
+- Tracing, Prometheus, Grafana, Servicegraph 설치
 - Kong Ingress를 사용할 것이므로 istio ingress controller는 제외함
-- 1.9부터 지원하는 auto injection도 사용하지 않음 (study 목적)
 - mTLS도 사용하지 않음
 - `no matches for config.istio.io` 에러 발생시 한번더 `apply`
 
@@ -55,42 +55,28 @@ kubectl -n istio-system get svc
 kubectl -n istio-system get po
 ```
 
-### Istio addons
-
-- zipkin, prometheus, grafana, service graph
+### Istio Automatic sidecar injection
 
 ```
-kubectl apply -f install/addons/zipkin.yaml
-kubectl apply -f install/addons/prometheus.yaml
-kubectl apply -f install/addons/grafana.yaml
-kubectl apply -f install/addons/servicegraph.yaml
-# check
-kubectl -n istio-system get svc
-kubectl -n istio-system get po
-# port forwarding
-kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=zipkin -o jsonpath='{.items[0].metadata.name}') 9411:9411 & # zipkin
+kubectl label namespace default istio-injection=enabled
+kubectl get namespace -L istio-injection
+```
+
+### Istio addons port forwarding
+
+- Tracing, Prometheus, Grafana, Servicegraph
+
+```
+kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686 & # jaeger
 kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=prometheus -o jsonpath='{.items[0].metadata.name}') 9090:9090 & # prometheus
 kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000:3000 & # grafana
 kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8088:8088 & # service graph
 # test
-open http://localhost:9411
+open http://localhost:16686
 open http://localhost:9090
 open http://localhost:3000
 open http://localhost:8088/dotviz
 ```
-
-- jaeger
-
-zipkin 대신 사용
-
-```
-kubectl apply -n istio-system -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
-# port forwarding
-kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686 &
-# test
-open http://localhost:16686
-```
-
 
 - prometheus test
 
@@ -101,6 +87,16 @@ istio_request_count
 istio_request_count{response_code="200"}
 ```
 
+### Istio Default Config
+
+내부에서 `kong-proxy.kong.svc.cluster.local` 연결시 Host header를 `api.pongpong.io`로 rewrite함
+
+```
+kubectl apply -f service/default/istio-route.yaml
+istioctl get virtualservice
+istioctl get virtualservice internal-kong-proxy -o yaml
+```
+
 ### Kong
 
 - kong + kong ingress 설치
@@ -108,7 +104,7 @@ istio_request_count{response_code="200"}
 설치하는데 시간이 조금 걸리고 에러가 발생하지만 조금 기다려야함
 
 ```
-kubectl apply -f install/kong-all-in-one-postgres.yaml
+istioctl kube-inject -f install/kong-all-in-one-postgres.yaml | kubectl apply -f -
 # check
 kubectl -n kong get svc
 watch kubectl -n kong get po
@@ -121,7 +117,7 @@ watch kubectl -n kong get po
 현재 버전(0.0.3)에서는 재설치시 오류발생
 
 ```
-kubectl apply -f install/kong-plugins.yaml
+kubectl apply -f service/default/kong-plugins.yaml
 # check
 kubectl proxy
 curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-controller:8001/proxy/consumers
@@ -131,7 +127,7 @@ curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-con
 ### Frontend
 
 ```
-istioctl kube-inject -f service/frontend/frontend.yml | kubectl apply -f -
+kubectl apply -f service/frontend
 # check
 kubectl get svc
 kubectl get po
@@ -142,8 +138,7 @@ open http://www.pongpong.io
 ### User Service
 
 ```
-kubectl apply -f service/user-service/0_user-service-db.yml
-istioctl kube-inject -f service/user-service/1_user-service.yml | kubectl apply -f -
+kubectl apply -f service/user-service
 # check
 kubectl get svc
 kubectl get po
@@ -158,19 +153,19 @@ curl http://localhost:8001/api/v1/namespaces/kong/services/http:kong-ingress-con
 
 - frontend
 
-![](screenshot/frontend.png)
+![frontend](screenshot/frontend.png)
 
 - dotviz
 
-![](screenshot/dotviz.png)
+![dotviz](screenshot/dotviz.png)
 
 - jaeger
 
-![](screenshot/jaeger.png)
+![jaeger](screenshot/jaeger.png)
 
 - grafana
 
-![](screenshot/grafana.png)
+![grafana](screenshot/grafana.png)
 
 ## Known Issue
 
