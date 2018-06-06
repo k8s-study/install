@@ -7,8 +7,6 @@ spec:
     - kong-proxy.kong.svc.cluster.local
   http:
   - match:
-    - uri:
-        prefix: /
     rewrite:
       authority: api.pongpong.io
     route:
